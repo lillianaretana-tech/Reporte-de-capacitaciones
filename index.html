@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Capacitación</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-gray-50">
+    <div id="app"></div>
+
+    <script>
+        const sb = window.supabase.createClient(
+            'https://buevojticjmynimnfdiu.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1ZXZvanRpY2pteW5pbW5mZGl1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE3MDU3NzgsImV4cCI6MjA3NzI4MTc3OH0.ofNUsQ0ZZT-AQ-we65m5qPLHtC0gG2QIQm2XyJ1Haec'
+        );
+
+        const emps = [{"id":"CR1-5038","nombre":"Quesada Tenorio Evelyn Priscilla","departamento":"Advant Medical Custodial"},{"id":"CR1-3556","nombre":"Guevara Cruz Celia","departamento":"Bayer Custodial"},{"id":"CR1-6179","nombre":"Sánchez Salas Andrea Marcela","departamento":"Bayer Custodial"},{"id":"CR1-6365","nombre":"Rodríguez Quesada Marilyn","departamento":"Bayer Custodial"},{"id":"CR1-6382","nombre":"Mendoza Fajardo Matilde","departamento":"Bayer Custodial"},{"id":"CR1-6935","nombre":"Ramírez Jiménez Manuel José","departamento":"Bayer Custodial"},{"id":"CR1-7126","nombre":"Leiva Muñoz Lisbeth de los Angeles","departamento":"Bayer Custodial"},{"id":"CR1-7220","nombre":"Romero Dania","departamento":"Bayer Custodial"},{"id":"CR1-7253","nombre":"Saborio Aguirre Meyling Vanessa","departamento":"Bayer Custodial"},{"id":"CR1-0305","nombre":"Solano Castro Olga María","departamento":"CBRE Refinitiv Cust - Ultrapark 2"},{"id":"CR1-6688","nombre":"Jiménez Vega José Andres","departamento":"CBRE Refinitiv Cust - Ultrapark 2"},{"id":"CR1-6766","nombre":"Castillo Henriquez Catalina","departamento":"CBRE Refinitiv Cust - Ultrapark 2"},{"id":"CR2-1447","nombre":"Córdoba Martínez Gioconda del Socorro","departamento":"CBRE-DXC-Cust-Ult 2"},{"id":"CR2-1192","nombre":"Reyes Sánchez Melba María","departamento":"Contract Workplaces Custodial"},{"id":"CR2-0979","nombre":"Fajardo Moran Kimberlin Dayana","departamento":"Contract Workplaces Multipark Custodial"},{"id":"CR1-2876","nombre":"Ruiz Treminio Arlen Melisa","departamento":"McKinsey Custodial"},{"id":"CR1-3168","nombre":"Romero Angulo Rocio","departamento":"McKinsey Custodial"},{"id":"CR1-4475","nombre":"Duarte Fonseca Elizabeth","departamento":"McKinsey Custodial"},{"id":"CR1-4591","nombre":"Zúñiga González Johana Veronica","departamento":"McKinsey Custodial"},{"id":"CR1-4642","nombre":"Alemán Mendoza Griselda del Carmen","departamento":"McKinsey Custodial"},{"id":"CR1-6065","nombre":"Saenz Cruz Iris","departamento":"McKinsey Custodial"},{"id":"CR1-6513","nombre":"Tenorio Solano Ashly Francela","departamento":"McKinsey Custodial"},{"id":"CR1-6872","nombre":"Calderón Salas William Gerardo","departamento":"McKinsey Custodial"},{"id":"CR1-6994","nombre":"Villegas Sibaja María Fernanda","departamento":"McKinsey Custodial"},{"id":"CR1-7248","nombre":"Reyes Valderramos Marilia Zulin","departamento":"McKinsey Custodial"},{"id":"CR2-0476","nombre":"Torres Marín Álvaro Eduardo","departamento":"Operación"},{"id":"CR2-1573","nombre":"Díaz Carrero Juana Francisca","departamento":"Operación"},{"id":"CR1-4681","nombre":"González Salazar Jaime Gerardo","departamento":"Operación"},{"id":"CR2-1568","nombre":"Tardencilla Reyes Abigail","departamento":"Uber Bambú Custodial"},{"id":"CR2-1159","nombre":"Domínguez Narvaéz Rosa Idalia","departamento":"Uber Cedral Custodial"},{"id":"CR2-1581","nombre":"Mena Fonseca Yesenia","departamento":"Uber Cedral Custodial"},{"id":"CR2-1142","nombre":"Torres Marín Bryan Josue","departamento":"Uber ULT Custodial"},{"id":"CR2-1200","nombre":"Sandí Vargas Rocío","departamento":"Uber ULT Custodial"},{"id":"CR2-1226","nombre":"Acevedo Ramos Kriseidy","departamento":"Uber ULT Custodial"},{"id":"CR2-1439","nombre":"Díaz Guadamuz Griselda María","departamento":"Uber ULT Custodial"},{"id":"CR2-1454","nombre":"Contreras Blandón Orquidia Vanessa","departamento":"Uber ULT Custodial"},{"id":"CR2-1455","nombre":"Torrentes Cordero Eufemia Tatiana","departamento":"Uber ULT Custodial"},{"id":"CR2-1566","nombre":"Regalado Malespin David","departamento":"Uber ULT Custodial"},{"id":"CR2-1569","nombre":"Espinoza Villegas María Luisa","departamento":"Uber ULT Custodial"}];
+        let empleadoSeleccionado = null;
+
+        function obtenerProyectos() {
+            return [...new Set(emps.map(e => e.departamento))];
+        }
+
+        function al_cambiar_proyecto() {
+            const proySelect = document.getElementById('proyecto-select');
+            const empSelect = document.getElementById('empleado-select');
+            const empeDiv = document.getElementById('empleado-div');
+            
+            const proySeleccionado = proySelect.value;
+            empSelect.innerHTML = '<option value="">--Seleccionar empleado--</option>';
+            
+            if (proySeleccionado) {
+                const empleadosFiltr = emps.filter(e => e.departamento === proySeleccionado);
+                empleadosFiltr.forEach(emp => {
+                    const opt = document.createElement('option');
+                    opt.value = emp.id;
+                    opt.textContent = emp.nombre;
+                    empSelect.appendChild(opt);
+                });
+                empeDiv.style.display = 'block';
+            } else {
+                empeDiv.style.display = 'none';
+            }
+        }
+
+        function al_cambiar_empleado() {
+            const empSelect = document.getElementById('empleado-select');
+            const empId = empSelect.value;
+            
+            if (empId) {
+                empleadoSeleccionado = emps.find(e => e.id === empId);
+            } else {
+                empleadoSeleccionado = null;
+            }
+        }
+
+        async function guardar() {
+            if (!empleadoSeleccionado) {
+                alert('⚠️ Por favor selecciona un empleado');
+                return;
+            }
+
+            const nombreCapacitacion = document.getElementById('nombreCapacitacion').value.trim();
+            const fecha = document.getElementById('fecha').value;
+            const duracion = document.getElementById('duracion').value;
+            const descripcionAcademico = document.querySelector('input[name="descripcionAcademico"]:checked')?.value || '';
+            const tipoCapacitacion = document.querySelector('input[name="tipoCapacitacion"]:checked')?.value || '';
+            const profesor = document.getElementById('profesor').value.trim();
+            const concluido = document.getElementById('concluido').checked;
+
+            if (!nombreCapacitacion) { alert('⚠️ Capacitación requerida'); return; }
+            if (!fecha) { alert('⚠️ Fecha requerida'); return; }
+            if (!duracion) { alert('⚠️ Duración requerida'); return; }
+            if (!descripcionAcademico) { alert('⚠️ Descripción requerida'); return; }
+            if (!tipoCapacitacion) { alert('⚠️ Tipo capacitación requerido'); return; }
+            if (!profesor) { alert('⚠️ Profesor requerido'); return; }
+
+            const datos = {
+                nombre_funcionario: empleadoSeleccionado.nombre,
+                id_empleado: empleadoSeleccionado.id,
+                proyecto: empleadoSeleccionado.departamento,
+                capacitacion: nombreCapacitacion,
+                fecha: fecha,
+                duracion: duracion,
+                descripcion_tipo_academico: descripcionAcademico,
+                tipo_capacitacion: tipoCapacitacion,
+                profesor: profesor,
+                concluido: concluido
+            };
+
+            try {
+                const { error } = await sb.from('capacitaciones').insert([datos]);
+                if (error) throw error;
+                
+                alert('✅ Registro guardado exitosamente');
+                limpiarFormulario();
+            } catch (e) {
+                console.error('Error:', e);
+                alert('❌ Error al guardar: ' + e.message);
+            }
+        }
+
+        function limpiarFormulario() {
+            document.getElementById('nombreCapacitacion').value = '';
+            document.getElementById('fecha').value = '';
+            document.getElementById('duracion').value = '';
+            document.getElementById('profesor').value = '';
+            document.getElementById('concluido').checked = false;
+            document.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
+        }
+
+        function renderizar() {
+            const proyectos = obtenerProyectos();
+            const html = `
+                <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
+                    <div class="max-w-2xl mx-auto">
+                        <div class="bg-white rounded-xl shadow-2xl p-8">
+                            <div class="text-center mb-8">
+                                <h1 class="text-4xl font-bold text-gray-800 mb-2">📋 Formulario de Capacitación</h1>
+                                <p class="text-gray-600">Completa todos los campos obligatorios</p>
+                            </div>
+
+                            <div class="mb-6">
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Proyecto *</label>
+                                <select id="proyecto-select" onchange="al_cambiar_proyecto()" class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:border-blue-500">
+                                    <option value="">--Seleccionar proyecto--</option>
+                                    ${proyectos.map(p => '<option value="' + p + '">' + p + '</option>').join('')}
+                                </select>
+                            </div>
+
+                            <div id="empleado-div" class="mb-6" style="display:none;">
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Empleado *</label>
+                                <select id="empleado-select" onchange="al_cambiar_empleado()" class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:border-blue-500">
+                                    <option value="">--Seleccionar empleado--</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-6">
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Capacitación *</label>
+                                <input type="text" id="nombreCapacitacion" placeholder="Ej: Excel Avanzado" class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:border-blue-500">
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4 mb-6">
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Fecha *</label>
+                                    <input type="date" id="fecha" class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:border-blue-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Duración (min) *</label>
+                                    <input type="number" id="duracion" placeholder="60" class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:border-blue-500" min="1">
+                                </div>
+                            </div>
+
+                            <div class="mb-6">
+                                <label class="block text-sm font-semibold text-gray-700 mb-3">Descripción *</label>
+                                <div class="space-y-2">
+                                    <label class="flex items-center"><input type="radio" name="descripcionAcademico" value="Charla" class="mr-3"> <span>Charla (013)</span></label>
+                                    <label class="flex items-center"><input type="radio" name="descripcionAcademico" value="Refrescamiento" class="mr-3"> <span>Refrescamiento (015)</span></label>
+                                    <label class="flex items-center"><input type="radio" name="descripcionAcademico" value="Curso" class="mr-3"> <span>Curso (014)</span></label>
+                                </div>
+                            </div>
+
+                            <div class="mb-6">
+                                <label class="block text-sm font-semibold text-gray-700 mb-3">Tipo Capacitación *</label>
+                                <div class="space-y-2">
+                                    <label class="flex items-center"><input type="radio" name="tipoCapacitacion" value="Interna" class="mr-3"> <span>Interna</span></label>
+                                    <label class="flex items-center"><input type="radio" name="tipoCapacitacion" value="Externa" class="mr-3"> <span>Externa</span></label>
+                                </div>
+                            </div>
+
+                            <div class="mb-6">
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Profesor *</label>
+                                <input type="text" id="profesor" placeholder="Nombre del profesor" class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:border-blue-500">
+                            </div>
+
+                            <div class="mb-8">
+                                <label class="flex items-center text-gray-700 font-semibold">
+                                    <input type="checkbox" id="concluido" class="mr-3 w-4 h-4">
+                                    <span>Capacitación Concluida</span>
+                                </label>
+                            </div>
+
+                            <button onclick="guardar()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition">
+                                💾 Guardar Registro
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('app').innerHTML = html;
+        }
+
+        renderizar();
+    </script>
+</body>
+</html>
